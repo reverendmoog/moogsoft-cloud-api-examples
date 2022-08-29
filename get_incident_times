@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+. ./.api_config
+
+# Last 24 hours
+end=$(date +'%s')
+start=$(expr $end - 86400)
+
+(
+    # CSV header
+    printf "incident_id,first_event_time,created_at,resolved_on\n"
+    # Return all incidents for the last 24 hrs that are closed
+    curl -s --request GET \
+         --url https://api.moogsoft.ai/v1/incidents?filter=status%20%3D%20closed%20AND%20created_at%20%3E%3D%20"$start"%20AND%20created_at%20%3C%20"$end" \
+         --header 'Accept: application/json' \
+         --header "apiKey: $API_KEY" \
+        |jq -r '.data.result[] |[
+            .incident_id,
+            .first_event_time,
+            .created_at,
+            .resolved_on
+        ]|@csv'
+) >inc_times.csv
