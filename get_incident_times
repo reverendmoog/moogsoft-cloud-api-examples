@@ -7,7 +7,7 @@ start=$(expr $end - 86400)
 
 (
     # CSV header
-    printf "incident_id,first_event_time,created_at,resolved_on\n"
+    printf '"incident_id","first_event_time","created_at","resolved_on","TTD (s),"TTR (s)"\n'
     # Return all incidents for the last 24 hrs that are closed
     curl -s --request GET \
          --url https://api.moogsoft.ai/v1/incidents?filter=status%20%3D%20closed%20AND%20created_at%20%3E%3D%20"$start"%20AND%20created_at%20%3C%20"$end" \
@@ -17,6 +17,8 @@ start=$(expr $end - 86400)
             .incident_id,
             .first_event_time,
             .created_at,
-            .resolved_on
+            .resolved_on,
+            (.created_at - .first_event_time),
+            (.resolved_on - .first_event_time)
         ]|@csv'
-) >inc_times.csv
+) #>inc_times.csv
