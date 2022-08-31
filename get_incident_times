@@ -21,4 +21,4 @@ start=$(expr $end - 86400)
             (.created_at - .first_event_time),
             (.resolved_on - .first_event_time)
         ]|@csv'
-) #>inc_times.csv
+) >inc_times.csv
